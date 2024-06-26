@@ -1,54 +1,68 @@
-import React, { useEffect, useState } from 'react';
-import useSocketData from '../stores/socketDataStore';
+import React, { useEffect, useRef, useState } from "react";
+import useSocketData from "../stores/socketDataStore";
+import DataComposant from "./DataComposant";
 
 function PlaylistComposant() {
   const { socketData } = useSocketData();
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-  const [duration, setDuration] = useState(socketData.playlist.medias[0]?.duration || 0);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
-    console.log("socketData.playlist.medias", socketData.playlist);
-    if (socketData.playlist.medias.length === 0) return;
+    const medias = socketData.playlist.medias;
+    if (medias.length === 0) return;
 
-    const interval = setInterval(() => {
-      const nextIndex = (currentMediaIndex + 1) % socketData.playlist.medias.length;
-      setCurrentMediaIndex(nextIndex);
-      setDuration(socketData.playlist.medias[nextIndex]?.duration || 0);
-    }, duration * 1000);
+    const currentMedia = medias[currentMediaIndex];
+    if (!currentMedia) return; // Vérifier si le média actuel existe
 
-    return () => clearInterval(interval);
-  }, [currentMediaIndex, duration, socketData.playlist.medias]);
+    const duration = currentMedia.duration * 1000; // Convertir en millisecondes
 
-  useEffect(() => {
-    if (!socketData.playlist.medias[currentMediaIndex]) {
-      setCurrentMediaIndex(0);
-      setDuration(socketData.playlist.medias[0]?.duration || 0);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
     }
-  }, [socketData.playlist.medias, currentMediaIndex]);
 
-  if (socketData.playlist.medias.length === 0) {
-    return null;
-  }
+    intervalRef.current = setInterval(() => {
+      setCurrentMediaIndex((prevIndex) => (prevIndex + 1) % medias.length);
+    }, duration);
+
+    return () => clearInterval(intervalRef.current);
+  }, [currentMediaIndex, socketData.playlist.medias.length]);
 
   const currentMedia = socketData.playlist.medias[currentMediaIndex];
+  if (!currentMedia) return null; // Vérifier si le média actuel existe
+
+  const mediaPath = `${import.meta.env.VITE_REACT_APP_FRONT_URL}${
+    currentMedia?.path
+  }`;
 
   return (
     <div>
-      {currentMedia?.type === 'video' ? (
+      {currentMedia?.type === "video" ? (
         <video
-          className='medias'
-          src={`${import.meta.env.VITE_REACT_APP_FRONT_URL}${currentMedia.path}`}
+          className="medias"
+          src={mediaPath}
+          onError={() =>
+            setCurrentMediaIndex(
+              (prevIndex) => (prevIndex + 1) % socketData.playlist.medias.length
+            )
+          }
           autoPlay
           muted
           loop
           preload="auto"
         />
-      ) : (
+      ) : currentMedia?.type === "image" ? (
         <img
-          className='medias'
-          src={`${import.meta.env.VITE_REACT_APP_FRONT_URL}${currentMedia.path}`}
+          className="medias"
+          src={mediaPath}
+          onError={() =>
+            setCurrentMediaIndex(
+              (prevIndex) => (prevIndex + 1) % socketData.playlist.medias.length
+            )
+          }
           alt={currentMedia?.original_file_name}
         />
+      ) : (
+        currentMedia?.type === "data" && <DataComposant />
       )}
     </div>
   );

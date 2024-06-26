@@ -8,9 +8,8 @@ const prisma = new PrismaClient();
 
 const server = new Server({ port });
 
-server.on('connection', (ws) => {
-  console.log('Client connected');
-
+server.on("connection", (ws) => {
+  console.log("Client connected");
 
   const intervalId = setInterval(async () => {
     try {
@@ -27,24 +26,23 @@ server.on('connection', (ws) => {
         });
         if (playlist) {
           socketData = { playlist: playlist, mode: modes[0].name };
-        }       
         }
-      
-        ws.send(JSON.stringify(socketData));
+      }
 
+      ws.send(JSON.stringify(socketData));
     } catch (error) {
-      console.error('Error fetching modes:', error);
-      ws.send('Error fetching modes\n');
+      console.error("Error fetching modes:", error);
+      ws.send("Error fetching modes\n");
     }
   }, 1000);
 
-  ws.on('close', () => {
-    console.log('Client disconnected');
+  ws.on("close", () => {
+    console.log("Client disconnected");
     clearInterval(intervalId);
   });
 
-  ws.on('error', (err) => {
-    console.error('WebSocket error:', err);
+  ws.on("error", (err) => {
+    console.error("WebSocket error:", err);
     clearInterval(intervalId);
   });
 });

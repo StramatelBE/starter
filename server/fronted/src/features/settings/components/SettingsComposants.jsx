@@ -89,7 +89,7 @@ function Icon() {
 function Settings({ setChangePasswordDialogOpen }) {
   const { modes } = modeStore();
   const { settings, setSettings } = settingsStore();
-  const { updateSetting } = useSettings();
+  const { updateSetting, updateSettingDate } = useSettings();
   const { updateMode } = useModes();
   const { theme, toggleTheme } = useThemeStore();
 
@@ -123,6 +123,11 @@ function Settings({ setChangePasswordDialogOpen }) {
     });
   };
 
+  const updateDate = () => {
+    updateSettingDate({
+      date: new Date().toISOString(),
+    });
+  };
   return (
     <Grid container>
       <Grid item xs={12} sm={12}>
@@ -178,20 +183,29 @@ function Settings({ setChangePasswordDialogOpen }) {
               </IconButton>
             )}
           </Stack>
-         {/*  <Stack direction="row" alignItems="center" spacing={3}>
+          <Stack
+            onClick={() => updateDate()}
+            direction="row"
+            alignItems="center"
+            spacing={3}
+          >
             <IconButton>
               <DateRangeIcon sx={{ color: 'text.secondary' }} />
             </IconButton>
             <Typography variant="h8" sx={{ color: 'text.primary' }}>
               Synchroniser la Date
             </Typography>
-          </Stack> */}
-          <Stack direction="row" alignItems="center" spacing={3}>
-            <IconButton onClick={() => setChangePasswordDialogOpen(true)}>
+          </Stack>
+          <Stack
+            onClick={() => setChangePasswordDialogOpen(true)}
+            direction="row"
+            alignItems="center"
+            spacing={3}
+          >
+            <IconButton>
               <LockIcon sx={{ color: 'text.secondary' }} />
             </IconButton>
             <Button
-              onClick={() => setChangePasswordDialogOpen(true)}
               variant="h8"
               size="big"
               sx={{

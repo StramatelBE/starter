@@ -21,9 +21,14 @@ router.get("/:settingId",authMiddleware, (req, res, next) =>
   settingController.getSettingById(req, res, next)
 );
 
+router.put("/date",authMiddleware, (req, res, next) =>
+  settingController.updateDate(req, res, next)
+);
+
 router.put("/:settingId",authMiddleware, validateDto(SettingsDto), (req, res, next) =>
   settingController.updateSetting(req, res, next)
 );
+
 
 router.delete("/:settingId",authMiddleware, (req, res, next) =>
   settingController.deleteSetting(req, res, next)
